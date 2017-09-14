@@ -6,6 +6,7 @@ module Tritium.Types
 	) where
 
 import Data.Foldable (foldl)
+import Data.Generic (class Generic)
 import Data.Maybe (Maybe(Nothing, Just), maybe)
 import Data.Newtype (class Newtype, unwrap)
 import Data.Tuple (Tuple(Tuple))
@@ -16,6 +17,7 @@ import Prelude (class Eq, class Functor, class Ord, class Show, show, (<>), (==)
 newtype ElementName = ElementName String
 
 derive newtype instance eqElementName :: Eq ElementName
+derive instance genericElementName :: Generic ElementName
 derive instance newtypeElementName :: Newtype ElementName _
 derive newtype instance ordElementName :: Ord ElementName
 instance showElementName :: Show ElementName where
@@ -56,6 +58,7 @@ instance eqHTMLElement :: Eq (HTMLElement a) where
 		_, _ -> false
 instance functorHTMLElement :: Functor HTMLElement where
 	map f (HTMLElement namespace name properties) = HTMLElement namespace name (f properties)
+derive instance genericHTMLElement :: Generic a => Generic (HTMLElement a)
 derive instance ordHTMLElement :: Ord a => Ord (HTMLElement a)
 instance showHTMLElement :: Show a => Show (HTMLElement a) where
 	show (HTMLElement namespace elementName props) = "(HTMLElement " <> maybe "" show namespace <> " " <> show elementName <> " " <> show props <> ")"
@@ -65,6 +68,7 @@ instance showHTMLElement :: Show a => Show (HTMLElement a) where
 newtype Namespace = Namespace String
 
 derive newtype instance eqNamespace :: Eq Namespace
+derive instance genericNamespace :: Generic Namespace
 derive instance newtypeNamespace :: Newtype Namespace _
 derive newtype instance ordNamespace :: Ord Namespace
 instance showNamespace :: Show Namespace where
