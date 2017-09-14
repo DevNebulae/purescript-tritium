@@ -6,9 +6,10 @@ module Tritium.Types
 	) where
 
 import Data.Foldable (foldl)
-import Data.Generic (class Generic)
-import Data.Maybe (Maybe(Nothing, Just), maybe)
-import Data.Newtype (class Newtype, unwrap)
+import Data.Generic.Rep (class Generic)
+import Data.Generic.Rep.Show (genericShow)
+import Data.Maybe (Maybe(Nothing, Just))
+import Data.Newtype (class Newtype)
 import Data.Tuple (Tuple(Tuple))
 import Prelude (class Eq, class Functor, class Ord, class Show, show, (<>), (==))
 
@@ -17,11 +18,11 @@ import Prelude (class Eq, class Functor, class Ord, class Show, show, (<>), (==)
 newtype ElementName = ElementName String
 
 derive newtype instance eqElementName :: Eq ElementName
-derive instance genericElementName :: Generic ElementName
+derive instance genericElementName :: Generic ElementName _
 derive instance newtypeElementName :: Newtype ElementName _
 derive newtype instance ordElementName :: Ord ElementName
 instance showElementName :: Show ElementName where
-	show = unwrap
+	show = genericShow
 
 -- | The specification for an HTML element is built with a
 -- | namespace, the name of the element and its properties.
@@ -58,21 +59,21 @@ instance eqHTMLElement :: Eq (HTMLElement a) where
 		_, _ -> false
 instance functorHTMLElement :: Functor HTMLElement where
 	map f (HTMLElement namespace name properties) = HTMLElement namespace name (f properties)
-derive instance genericHTMLElement :: Generic a => Generic (HTMLElement a)
+derive instance genericHTMLElement :: Generic (HTMLElement a) _
 derive instance ordHTMLElement :: Ord a => Ord (HTMLElement a)
 instance showHTMLElement :: Show a => Show (HTMLElement a) where
-	show (HTMLElement namespace elementName props) = "(HTMLElement " <> maybe "" show namespace <> " " <> show elementName <> " " <> show props <> ")"
+	show = genericShow
 
 -- | Defines the namespace of both an HTML element as well
 -- | as the namespace of a property of an HTML element.
 newtype Namespace = Namespace String
 
 derive newtype instance eqNamespace :: Eq Namespace
-derive instance genericNamespace :: Generic Namespace
+derive instance genericNamespace :: Generic Namespace _
 derive instance newtypeNamespace :: Newtype Namespace _
 derive newtype instance ordNamespace :: Ord Namespace
 instance showNamespace :: Show Namespace where
-	show = unwrap
+	show = genericShow
 
 -- | The virtual DOM is composed of three native types in
 -- | the DOM:
@@ -94,6 +95,8 @@ data VDOM a
 	| Comment String
 	| Text String
 
+-- Do not use a generic show for this instance, because it
+-- will break on the recursive data structure
 instance showVDOM :: Show a => Show (VDOM a) where
 	show (Node htmlElement children) = "(Node " <> show htmlElement <> " " <> show children <> ")"
 	show (KeyedNode htmlElement keyedChildren) = show "(KeyedNode" <> show htmlElement <> format keyedChildren <> ")"
