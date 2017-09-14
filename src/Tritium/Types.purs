@@ -6,10 +6,10 @@ module Tritium.Types
 	) where
 
 import Data.Foldable (foldl)
-import Data.Maybe (Maybe, maybe)
+import Data.Maybe (Maybe(Nothing, Just), maybe)
 import Data.Newtype (class Newtype, unwrap)
 import Data.Tuple (Tuple(Tuple))
-import Prelude (class Eq, class Functor, class Ord, class Show, show, (<>))
+import Prelude (class Eq, class Functor, class Ord, class Show, show, (<>), (==))
 
 -- | Defines the name of an HTML-based element or any other
 -- | XML-based layout.
@@ -45,10 +45,18 @@ instance showElementName :: Show ElementName where
 -- | ```
 data HTMLElement a = HTMLElement (Maybe Namespace) ElementName a
 
-derive instance eqHtmlElement :: Eq a => Eq (HTMLElement a)
-instance functorHtmlElement :: Functor HTMLElement where
+instance eqHTMLElement :: Eq (HTMLElement a) where
+	eq a b = case a, b of
+		HTMLElement ns1 name1 _, HTMLElement ns2 name2 _ | name1 == name2 ->
+			case ns1, ns2 of
+				Just (Namespace ns1'), Just (Namespace ns2') | ns1' == ns2' -> true
+				Nothing, Nothing -> true
+				_, _ -> false
+
+		_, _ -> false
+instance functorHTMLElement :: Functor HTMLElement where
 	map f (HTMLElement namespace name properties) = HTMLElement namespace name (f properties)
-derive instance ordHtmlElement :: Ord a => Ord (HTMLElement a)
+derive instance ordHTMLElement :: Ord a => Ord (HTMLElement a)
 instance showHTMLElement :: Show a => Show (HTMLElement a) where
 	show (HTMLElement namespace elementName props) = "(HTMLElement " <> maybe "" show namespace <> " " <> show elementName <> " " <> show props <> ")"
 
